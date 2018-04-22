@@ -1,0 +1,177 @@
+
+
+<mat-form-field class="example-form-field">
+    <input matInput type="text" placeholder="Filter table" name="filterValue" [ngModel]="filterValue" (input)="onFilterChange($event.target.value)" />
+    <button mat-button *ngIf="filterValue" matSuffix mat-icon-button (click)="filterValue=''">
+      <mat-icon>close</mat-icon>
+    </button>
+</mat-form-field>
+
+<table class="table table-hover">
+    <thead>
+      <tr>
+          <th></th>
+          <th>#</th>
+          <th>Name</th>
+          <th>Services</th>
+          <th>Updated date</th>
+          <th>Info</th>
+      </tr>
+    </thead>
+    <tbody *ngFor="let row of filteredServiceGroups | filterAnywhere: filterValue | sort; let idx=index;">
+      <tr>
+        <td class="expandIndicator"><mat-icon (click)="expandRow(row)">menu</mat-icon></td>
+        <td class="downFix">{{idx + 1}}</td>
+        <td class="downFix">{{row.name}} <a *ngIf="(row.services | allDockerLabels: dockerData.config.labelPrefix + '.elk').length > 0" [href]="(row.services | allDockerLabels: dockerData.config.labelPrefix + '.elk')[0].value" target="_blank">[ELK]</a></td>
+        <td class="downFix">
+          {{row.services | countServices:'up'}} / {{row.services | countServices}}
+          <strong class="text-danger" *ngIf="row.services | countServices:'down'"> ({{row.services | countServices:'down'}}) </strong>
+        </td>
+        <td class="downFix">
+          <span *ngIf="row.services && row.services.length > 0 && row.services[0].UpdatedAt">{{row.services[0].UpdatedAt | date: 'EEEE, MMM d, y, h:mm:ss a'}}</span>
+        </td>
+        <td class="downFix">
+          <div *ngIf="row.review">
+              Created by <a href="mailto:{{row.review.owner.email}}?subject=Question about {{row.name}} docker service&body=Hello!<br/>Can you inform me about {{row.name}} docker service?<br/><br/>Thanks">{{row.review.owner.name}}</a> on <a href="http://gerrit/q/project:{{row.review.project}}" target="_blank">{{row.review.project}}</a>/{{row.review.branch}} with message: <a ng-if="row.review" href="http://gerrit:80/c/{{row.review.reviewId}}/" target="_blank" title="{{row.review.subject}}" >{{row.review.subject | limitTo: 100}} ...</a>
+          </div>
+          <div *ngFor="let label of (row.services | allDockerLabels: dockerData.config.labelPrefix + '.info')" [innerHTML]="label.value | keepHtml"></div>
+        </td>
+      </tr>
+
+      <!-- Expanded row -->
+      <tr [hidden]="!isExpanded(row)">
+        <td colspan="6">
+              <div class="panel panel-default">
+                <mat-accordion [multi]="true">
+                    <mat-expansion-panel [expanded]="true">
+                      <mat-expansion-panel-header>
+                          <mat-panel-title>
+                              Containers
+                            </mat-panel-title>
+                            <mat-panel-description>
+                              Detailed information from the {{row.name}} ecosystem <button mat-icon-button (click)="openDebug(row, row.name + ' meta data')"><mat-icon>bug_report</mat-icon></button>
+                            </mat-panel-description>
+                      </mat-expansion-panel-header>
+                      <ng-template matExpansionPanelContent>
+
+                          <!-- Checkbox -->
+                          <div *ngIf="(row.services | countServices:'down') > 0" class="checkbox">
+                            <label>
+                              <input type="checkbox" [checked]="isShowFailedContainer(row.name)" (change)="onFailedContainerChanged(row.name)" />Show failed containers <strong class="text-danger">({{row.services | countServices:'down'}})</strong>
+                            </label>
+                          </div>
+
+                          <table class="table table-hover table-striped">
+                              <thead>
+                                  <tr>
+                                      <th>Container name</th>
+                                      <th>Logs</th>
+                                      <th>Meta</th>
+                                      <th>State</th>
+                                      <th>Ports</th>
+                                      <th>Image</th>
+                                      <th>Updated date</th>
+                                      <th>Node</th>
+                                      <th>Resources</th>
+                                      <th>Labels</th>
+                                      <th>Errors</th>
+                                  </tr>
+                              </thead>
+                              <tbody>
+                                <ng-container *ngFor="let service of row.services">
+                                  <tr *ngFor="let task of service.tasks | showFailedTasks: isShowFailedContainer(row.name)" [ngClass]="{'danger': task.DesiredState !== 'running'}">
+                                      <td>{{service.Spec.Name}}#{{task.ID}}</td>
+                                      <td><button mat-icon-button (click)="openLog(task)"><mat-icon>filter_none</mat-icon></button></td>
+                                      <td><button mat-icon-button (click)="openDebug(task, task.ID + ' container meta data')"><mat-icon>build</mat-icon></button></td>
+                                      <td>{{task.DesiredState}}</td>
+                                      <td>
+                                          <ul>
+                                              <li *ngFor="let port of service.Endpoint.Ports">{{port.Protocol}}/<a href="http://{{dockerData.config.cloudName}}:{{port.PublishedPort}}" target="_blank">{{port.PublishedPort}}</a> : {{port.TargetPort}}</li>
+                                          </ul>
+                                      </td>
+                                      <td>{{service.Spec.TaskTemplate.ContainerSpec.Image | imageName}}</td>
+                                      <td>
+                                        <span *ngIf="task.UpdatedAt">{{task.UpdatedAt | date: 'EEEE, MMM d, y, h:mm:ss a'}}</span></td>
+                                      <td>
+                                        <ng-container *ngFor="let node of dockerData.nodes | nodeBy: task.NodeID">
+                                          <popover-content #nodePopover
+                                                          title="{{node.Description.Hostname}} information"
+                                                          placement="left">
+                                            <div><strong>{{node.Description.Hostname}}</strong> node is {{node.Spec.Role}} and {{node.Spec.Availability}} / <strong>{{node.Status.State}}</strong></div>
+                                            <div>
+                                                <div><hr /></div>
+                                                <h4>Total resources</h4>
+                                                <div>CPU: {{node.Description.Resources.NanoCPUs| resources: {check: 'Limits', type: 'NanoCPUs'} }}</div>
+                                                <div>Memory: {{node.Description.Resources.MemoryBytes | resources: {check: 'Limits', type: 'MemoryBytes'} }}</div>
+                                            </div>
+                                            <div *ngIf="node.Status.Message">
+                                                <div><hr /></div>
+                                                <h4>Message</h4>
+                                                <div>{{node.Status.Message}}</div>
+                                            </div>
+                                            <div *ngIf="node.Spec.Labels">
+                                                <div><hr /></div>
+                                                <h4>Labels</h4>
+                                                <div *ngFor="let lbl of node.Spec.Labels | keys">{{lbl.key}} = {{lbl.value}}</div>
+                                            </div>
+                                            <div>
+                                                <div><hr /></div>
+                                                <h4>Docker version</h4>
+                                                <div>{{node.Description.Engine.EngineVersion}}</div>
+                                            </div>
+                                            <div>
+                                                <hr />Last updated: {{node.UpdatedAt| date: 'EEEE, MMM d, y, h:mm:ss a'}}
+                                            </div>
+                                          </popover-content>
+                                          <span [popover]="nodePopover" [popoverOnHover]="true">
+                                                  {{node.Description.Hostname}}
+                                          </span>
+                                        </ng-container>
+                                      </td>
+                                      <td>
+                                          <popover-content #resourcePopover placement="left">
+                                            <h4>CPU</h4>
+                                            <div><strong>Reserved:</strong> {{task | resources: {check: 'Reservations', type: 'NanoCPUs'} }}</div>
+                                            <div><strong>Limit:</strong> {{task | resources: {check: 'Limits', type: 'NanoCPUs'} }}</div>
+
+                                            <hr />
+                                            <h4>Memory</h4>
+                                            <div><strong>Reserved:</strong> {{task | resources: {check: 'Reservations', type: 'MemoryBytes'} }}</div>
+                                            <div><strong>Limit:</strong> {{task | resources: {check: 'Limits', type: 'MemoryBytes'} }}</div>
+
+                                          </popover-content>
+                                          <div [popover]="resourcePopover" [popoverOnHover]="true">
+                                              <div>CPU: {{task | resources: {check: 'Reservations', type: 'NanoCPUs'} }} / {{task | resources: {check: 'Limits', type: 'NanoCPUs'} }}</div>
+                                              <div>MEM: {{task | resources: {check: 'Reservations', type: 'MemoryBytes'} }} / {{task | resources: {check: 'Limits', type: 'MemoryBytes'} }}</div>
+                                          </div>
+                                      </td>
+                                      <td>
+                                          <div *ngFor="let label of service | allDockerLabels: dockerData.config.labelPrefix" [innerHTML]="label.key +'='+ label.value | keepHtml"></div>
+                                      </td>
+                                      <td>{{task.Status.Err}}</td>
+                                  </tr>
+                                </ng-container>
+                              </tbody>
+                          </table>
+                      </ng-template>
+                    </mat-expansion-panel>
+
+                    <mat-expansion-panel>
+                        <mat-expansion-panel-header>
+                            <mat-panel-title>
+                                Monitoring
+                              </mat-panel-title>
+                              <mat-panel-description>
+                                Monitoring information from the {{row.name}} ecosystem
+                              </mat-panel-description>
+                        </mat-expansion-panel-header>
+                        <ng-template matExpansionPanelContent>
+                            TODO
+                        </ng-template>
+                      </mat-expansion-panel>
+                </mat-accordion>
+              </div>
+        </td>
+      </tr>
+    </tbody>
+</table>

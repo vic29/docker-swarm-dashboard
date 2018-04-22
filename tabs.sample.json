@@ -1,0 +1,38 @@
+[
+    {
+        "label": "All services",
+        "serviceFilter": null,
+        "links": [
+            {
+                "title": "Swarm Dashboard support",
+                "links": [
+                    {
+                        "name": "Github",
+                        "link": "https://github.com/szabobar/docker-swarm-dashboard"
+                    },
+                    {
+                        "name": "Bugriport",
+                        "link": "https://github.com/szabobar/docker-swarm-dashboard/issues"
+                    }
+                ]
+            },
+            {
+                "title": "Interesting pages",
+                "links": [
+                    {
+                        "name": "Dockerfile reference",
+                        "link": "https://docs.docker.com/engine/reference/builder"
+                    },
+                    {
+                        "name": "Docker compose reference",
+                        "link": "https://docs.docker.com/compose/compose-file"
+                    },
+                    {
+                        "name": "Swarm API docs",
+                        "link": "https://docs.docker.com/engine/api/v1.37"
+                    }
+                ]
+            }
+        ]
+    }
+]

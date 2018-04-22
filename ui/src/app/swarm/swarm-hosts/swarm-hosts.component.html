@@ -1,0 +1,44 @@
+<mat-accordion [multi]="true">
+      <mat-expansion-panel [expanded]="panelOpenCache['balance']" (opened)="panelToggle('balance', true)" (closed)="panelToggle('balance', false)">
+        <mat-expansion-panel-header>
+            <mat-panel-title>
+                Service balance
+              </mat-panel-title>
+              <mat-panel-description>
+                Sharing services in the {{dockerData.config.cloudName}} cloud
+              </mat-panel-description>
+        </mat-expansion-panel-header>
+        <ng-template matExpansionPanelContent>
+            TODO
+        </ng-template>
+      </mat-expansion-panel>
+
+      <mat-expansion-panel [expanded]="panelOpenCache['monitor']" (opened)="panelToggle('monitor', true)" (closed)="panelToggle('monitor', false)">
+        <mat-expansion-panel-header>
+            <mat-panel-title>
+                Monitoring
+              </mat-panel-title>
+              <mat-panel-description>
+                Monitoring information from the {{dockerData.config.cloudName}} cloud
+              </mat-panel-description>
+        </mat-expansion-panel-header>
+        <ng-template matExpansionPanelContent>
+            TODO
+        </ng-template>
+      </mat-expansion-panel>
+
+      <mat-expansion-panel [expanded]="panelOpenCache['resource']" (opened)="panelToggle('resource', true)" (closed)="panelToggle('resource', false)">
+        <mat-expansion-panel-header>
+            <mat-panel-title>
+                Resource declaration
+              </mat-panel-title>
+              <mat-panel-description>
+                CPU and Memory declarations in the {{dockerData.config.cloudName}} cloud
+              </mat-panel-description>
+        </mat-expansion-panel-header>
+        <ng-template matExpansionPanelContent>
+            TODO
+        </ng-template>
+      </mat-expansion-panel>
+
+</mat-accordion>

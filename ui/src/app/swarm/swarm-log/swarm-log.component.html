@@ -1,0 +1,15 @@
+
+<mat-dialog-content id="help-text">
+
+    <h2>{{task.ID}} console log</h2>
+    <div>Auto close log stream: {{secLeft|timeCountDown}}</div>
+
+    <div class="log-content">
+      <code>
+        <pre>
+{{containerContent}}
+        </pre>
+      </code>
+    </div>
+
+</mat-dialog-content>

@@ -1,0 +1,23 @@
+
+<table class="table table-hover table-striped">
+    <thead>
+      <tr>
+          <th>Port</th>
+          <th>Service Name</th>
+          <th>Info</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let port of serviceGroups | ports">
+        <td>{{port.Protocol}}/{{port.PublishedPort}} : {{port.TargetPort}}</td>
+        <td>{{port.stack.name}}</td>
+        <td>
+            <ng-container *ngFor="let service of serviceGroups">
+              <ng-container *ngIf="port.stack.name === service.name">
+                <div *ngFor="let label of (service.services | allDockerLabels: dockerData.config.labelPrefix + '.info')" [innerHTML]="label.value | keepHtml"></div>
+              </ng-container>
+            </ng-container>
+        </td>
+      </tr>
+    </tbody>
+</table>

@@ -1,0 +1,20 @@
+
+<mat-card>
+  <mat-card-content>
+    <mat-tab-group #tabGroup (selectedTabChange)="tabChanged($event)" [selectedIndex]="tabSelectedIndex">
+
+      <mat-tab label="Hosts">
+        <div *ngIf="tabSelectedIndex == 0" class="panel"> <!-- For client resource optimalization -->
+          <app-swarm-hosts [dockerData]="dockerData"></app-swarm-hosts>
+        </div>
+      </mat-tab>
+
+      <mat-tab *ngFor="let tab of tabs; let tabIdx = index;" label="{{tab.label}}">
+        <div *ngIf="tabSelectedIndex - 1 == tabIdx" class="panel"> <!-- For client resource optimalization -->
+          <app-swarm-project [tab]="tab" [dockerData]="dockerData" [isProjectTab]="tabIdx > 0"></app-swarm-project>
+        </div>
+      </mat-tab>
+
+    </mat-tab-group>
+  </mat-card-content>
+</mat-card>
