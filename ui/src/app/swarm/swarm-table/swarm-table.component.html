@@ -19,7 +19,7 @@
       </tr>
     </thead>
     <tbody *ngFor="let row of filteredServiceGroups | filterAnywhere: filterValue | sort; let idx=index;">
-      <tr>
+      <tr [ngClass]="{'warning': row.workspace && row.workspace.overloaded}">
         <td class="expandIndicator"><mat-icon (click)="expandRow(row)">menu</mat-icon></td>
         <td class="downFix">{{idx + 1}}</td>
         <td class="downFix">{{row.name}} <a *ngIf="(row.services | allDockerLabels: dockerData.config.labelPrefix + '.elk').length > 0" [href]="(row.services | allDockerLabels: dockerData.config.labelPrefix + '.elk')[0].value" target="_blank">[ELK]</a></td>

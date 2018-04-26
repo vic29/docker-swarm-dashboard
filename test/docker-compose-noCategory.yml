@@ -1,0 +1,30 @@
+version: '3.4'
+services:
+  mongo:
+    image: mongo
+    deploy:
+      # Egyszer szükséges megadni ecosystem-enként a label-eket
+      labels:
+        loxon.info: "Mongo database for zabbix"
+        loxon.pool: "-NO-CATEGORY-"
+        loxon.cleanEmail: "barnabas.szabo@loxon.eu"
+        loxon.priority: 70
+
+      # Resource definíció kötelező minden containerre
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 128M
+        reservations:
+          cpus: '0.5'
+          memory: 120M    
+  nginx:
+    image: nginx
+    deploy:
+      resources:
+        limits:
+          cpus: '0.05'
+          memory: 32M
+        reservations:
+          cpus: '0.05'
+          memory: 31M

@@ -1,6 +1,7 @@
 # Custom
 yarn.lock
 public
+dev.env
 
 
 # Logs

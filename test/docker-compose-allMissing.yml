@@ -1,0 +1,6 @@
+version: '3.4'
+services:
+  mongo:
+    image: redis
+  nginx:
+    image: nginx

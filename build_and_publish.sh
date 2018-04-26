@@ -3,5 +3,6 @@
 rm -rf node_modules
 rm -rf ui/node_modules
 
-time docker build --pull -t docker.loxon.eu/infra/cloud-index:7.0.0-beta1 .
-docker push docker.loxon.eu/infra/cloud-index:7.0.0-beta1
+time docker build --pull -t szabob/swarm-dashboard:1.0 -t szabob/swarm-dashboard:latest .
+docker push szabob/swarm-dashboard:1.0
+docker push szabob/swarm-dashboard:latest

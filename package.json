@@ -5,16 +5,18 @@
   "main": "app.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "DELETE_EP=true DELETE_UI=true AUTOCLEAN_ENABLE=true REFRESH_DELAY_IN_MILLISEC=5000 GERRIT_COLLECT=true SWARM_BASE_URL=localhost:8080 LABEL_PREFIX='loxon' npm start"
+    "dev": "yarn install && SWARM_BASE_URL=localhost:8080 ENVFILE=./environment/dev.env npm start"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "concat-stream": "^1.6.2",
     "dockerode": "^2.5.4",
+    "dotenv": "^5.0.1",
     "express": "^4.15.3",
     "lodash": "^4.17.5",
     "node-cron": "^1.2.1",
+    "nodemailer": "^4.6.4",
     "portscanner": "^2.1.1",
     "shelljs": "^0.7.8",
     "socket.io": "^2.0.3"

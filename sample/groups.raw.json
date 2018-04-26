@@ -1,0 +1,75 @@
+[{
+        "label": "All services",
+        "serviceFilter": null,
+        "allocation": {
+            "weight": 0
+        },
+        "links": [{
+                "title": "Swarm Dashboard support",
+                "links": [{
+                        "name": "Github",
+                        "link": "https://github.com/szabobar/docker-swarm-dashboard"
+                    },
+                    {
+                        "name": "Bugriport",
+                        "link": "https://github.com/szabobar/docker-swarm-dashboard/issues"
+                    }
+                ]
+            },
+            {
+                "title": "Interesting pages",
+                "links": [{
+                        "name": "Dockerfile reference",
+                        "link": "https://docs.docker.com/engine/reference/builder"
+                    },
+                    {
+                        "name": "Docker compose reference",
+                        "link": "https://docs.docker.com/compose/compose-file"
+                    },
+                    {
+                        "name": "Swarm API docs",
+                        "link": "https://docs.docker.com/engine/api/v1.37"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "label": "Category 1 - TODO-Remove",
+        "serviceFilter": "mycat1",
+        "allocation": {
+            "weight": 300
+        },
+        "links": [{
+            "title": "Swarm Dashboard support",
+            "links": [{
+                    "name": "Github",
+                    "link": "https://github.com/szabobar/docker-swarm-dashboard"
+                },
+                {
+                    "name": "Bugriport",
+                    "link": "https://github.com/szabobar/docker-swarm-dashboard/issues"
+                }
+            ]
+        }]
+    },
+    {
+        "label": "Category 2 - TODO-Remove",
+        "serviceFilter": "mycat2",
+        "allocation": {
+            "weight": 500
+        },
+        "links": [{
+            "title": "Swarm Dashboard support",
+            "links": [{
+                    "name": "Github",
+                    "link": "https://github.com/szabobar/docker-swarm-dashboard"
+                },
+                {
+                    "name": "Bugriport",
+                    "link": "https://github.com/szabobar/docker-swarm-dashboard/issues"
+                }
+            ]
+        }]
+    }
+]

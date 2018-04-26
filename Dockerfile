@@ -1,24 +1,17 @@
 FROM node:alpine
 
 USER root
+
+# Create app directory
+RUN mkdir -p /opt/app
+WORKDIR /opt/app
+
 # Add docker repository, and install it
 RUN echo "" >> /etc/apk/repositories && echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
 RUN apk update \
     && apk --no-cache add openrc docker curl \
     && rc-update add docker boot \
     && rm -rf /var/cache/apk/*
-
-# RUN npm install -g yarn
-
-ENV SWARM_BASE_URL="localhost"
-ENV LABEL_PREFIX="custom"
-ENV AUTOCLEAN_ENABLE=false
-ENV DELETE_EP=true
-ENV REFRESH_DELAY_IN_MILLISEC=60000
-
-# Create app directory
-RUN mkdir -p /opt/app
-WORKDIR /opt/app
 
 # Bundle FULL app source
 COPY . /opt/app
