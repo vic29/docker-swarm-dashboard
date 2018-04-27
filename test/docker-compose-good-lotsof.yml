@@ -1,0 +1,43 @@
+version: '3.4'
+services:
+  db:
+    image: mongo
+    deploy:
+      # Egyszer szükséges megadni ecosystem-enként a label-eket
+      replicas: 3
+      labels:
+        #loxon.info: "Test ecosystem 1"
+        loxon.pool: "mycat1"
+        loxon.cleanEmail: "barnabas.szabo@loxon.eu"
+        loxon.priority: 100
+
+      # Resource definíció kötelező minden containerre
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 1G    
+  nginx:
+    image: nginx
+    deploy:
+      replicas: 5
+      resources:
+        limits:
+          cpus: '0.05'
+          memory: 1G
+        reservations:
+          cpus: '0.05'
+          memory: 1G
+  redis:
+    image: redis
+    deploy:
+      replicas: 7
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 2G

@@ -28,7 +28,7 @@ module.exports = {
                         } else {
                             console.log('Ecosystem removed: ' + ecosystem.name + ' ; because: ', ecosystem.markedMessage);
                             console.log('=================================');
-                            // TODO Send email based by label! ecosystem.markedMessage adatot
+                            // TODO Send email based by label! ecosystem.markedMessage adatot, és a support-nak is!
                         }
                     });
                 } else {

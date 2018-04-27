@@ -5,14 +5,18 @@ const fs = require('fs');
 const express = require('express');
 const app = express();
 const server = require('http').createServer(app);
-const io = require('socket.io')(server);
+module.exports = {
+    getServer: function() {
+        return server;
+    }
+}
 const http = require('http');
 const shell = require('shelljs');
 const portscanner = require('portscanner');
 const path = require('path');
 const _ = require('lodash');
-
 const dockerLogsMaxRowNum = env.get('DOCKER_LOGS_MAX_ENTRY_NUM') || 2000;
+const websocket = require('./websocketHandler.js');
 
 let lastData = {
     config: {
@@ -48,29 +52,29 @@ const dockerLogs = require('./docker/docker_log.js');
 require('./docker/docker_collect.js')(function (newData, lastCheckedDate) {
     gerritInfo.startCollect(newData, function (dataWithGerrit) {
         autoClean.startClean(dataWithGerrit, projectGroups);
-        
+
         if (!_.isEqual(lastData, dataWithGerrit)) {
             lastData = dataWithGerrit;
-            broadcast('docker', lastData);
+            websocket.broadcast('docker', lastData);
         }
-        broadcast('refresh', {
+        websocket.broadcast('refresh', {
             lastCheckedDate: lastCheckedDate
         });
     });
 });
 
-io.on('connection', function (client) {
+websocket.onConnection(function (client) {
     publicOnlineUserNum();
-    broadcast('docker', lastData);
-    broadcast('refresh', {
+    websocket.broadcast('docker', lastData);
+    websocket.broadcast('refresh', {
         lastCheckedDate: lastCheckedDate
     });
-    broadcast('tabs', projectGroups);
+    websocket.broadcast('tabs', projectGroups);
 
     client.on('tabs-create', function (data) {
         projectGroups.push(data);
         persistGroups(projectGroups);
-        broadcast('tabs', projectGroups);
+        websocket.broadcast('tabs', projectGroups);
     });
     client.on('tabs-update', function (data) {
         projectGroups.forEach(t => {
@@ -84,12 +88,12 @@ io.on('connection', function (client) {
             }
         });
         persistGroups(projectGroups);
-        broadcast('tabs', projectGroups);
+        websocket.broadcast('tabs', projectGroups);
     });
     client.on('tabs-delete', function (delLabel) {
         projectGroups = projectGroups.filter(e => e.label !== delLabel);
         persistGroups(projectGroups);
-        broadcast('tabs', projectGroups);
+        websocket.broadcast('tabs', projectGroups);
     });
     client.on('docker-logs', function (id) {
         dockerLogs(id, function (stream) {
@@ -97,16 +101,16 @@ io.on('connection', function (client) {
             stream.on('data', (chunk) => {
                 rows++;
                 if (rows === dockerLogsMaxRowNum) {
-                    broadcast('docker-logs-' + id, '--- TOO LARGE STREM DATA ---');
+                    websocket.broadcast('docker-logs-' + id, '--- TOO LARGE STREM DATA ---');
                 } else if (rows < dockerLogsMaxRowNum) {
-                    broadcast('docker-logs-' + id, chunk.toString('utf8'));
+                    websocket.broadcast('docker-logs-' + id, chunk.toString('utf8'));
                 } else {
                     stream.destroy();
                 }
             });
 
             stream.on('end', function () {
-                broadcast('docker-logs-' + id, '--- STREAM END ---');
+                websocket.broadcast('docker-logs-' + id, '--- STREAM END ---');
             });
 
             setTimeout(function () {
@@ -123,11 +127,7 @@ io.on('connection', function (client) {
 });
 
 function publicOnlineUserNum() {
-    broadcast('online', Object.keys(io.sockets.sockets).length);
-}
-
-function broadcast(channel, msg) {
-    io.sockets.emit(channel, msg);
+    websocket.broadcast('online', Object.keys(websocket.getOnlineConnections()).length);
 }
 
 function persistGroups(groupData) {

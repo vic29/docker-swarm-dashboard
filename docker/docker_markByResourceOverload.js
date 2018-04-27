@@ -1,4 +1,5 @@
 const env = require('../environment/envHandler.js');
+const websocket = require('../websocketHandler.js');
 
 module.exports = {
 
@@ -6,6 +7,48 @@ module.exports = {
         calculateGroupArea(dockerData, groups);
     }
 
+}
+
+function calculateGroupArea(fullData, groups) {
+    try {
+        // Workspace number calculations
+        const totalAvailableResources = getTotalAvailableResources(fullData.nodes);
+        const workspacePercent = 100 - (env.get('SYSMTEM_STANDBY_PERCENT') + env.get('LIMIT_RESERVED_GAP_PERCENT'));
+        const workspaceTotalCPU = totalAvailableResources.cpu / 100 * workspacePercent;
+        const workspaceTotalMemory = totalAvailableResources.memory / 100 * workspacePercent;
+        let groupWeightSum = 0;
+        groups.forEach(g => {
+            groupWeightSum += g.allocation.weight;
+        });
+        const weightMemoryUnit = workspaceTotalMemory / groupWeightSum;
+        const weightCPUUnit = workspaceTotalCPU / groupWeightSum;
+
+        // Group usage calculations
+        let totalDeclaredResources = {
+            cpu: 0,
+            memory: 0
+        };
+        groups.forEach(g => {
+            g.workspace = {
+                resource: {
+                    usableTotalMemory: g.allocation.weight * weightMemoryUnit,
+                    usableTotalCPU: g.allocation.weight * weightCPUUnit,
+                    usedTotalMemory: 0,
+                    usedTotalCPU: 0
+                }
+            }
+            calculateGroupResource(fullData.serviceGroups, g);
+            totalDeclaredResources.cpu += g.workspace.resource.usedTotalCPU;
+            totalDeclaredResources.memory += g.workspace.resource.usedTotalMemory;
+        });
+
+        markOverloadedEcosystems(fullData, groups, totalDeclaredResources, totalAvailableResources);
+    } catch (e) {
+        const msg = 'General error in resource overload detection: ' + e;
+        websocket.broadcast('server-error', msg);
+        // TODO Send email to admin: SUPPORT_EMAIL
+        console.log(msg);
+    }
 }
 
 function getTotalAvailableResources(nodes) {
@@ -18,42 +61,6 @@ function getTotalAvailableResources(nodes) {
         result.memory += n.Description.Resources.MemoryBytes;
     });
     return result;
-}
-
-function calculateGroupArea(fullData, groups) {
-
-    // Workspace number calculations
-    const totalAvailableResources = getTotalAvailableResources(fullData.nodes);
-    const workspacePercent = 100 - (env.get('SYSMTEM_STANDBY_PERCENT') + env.get('LIMIT_RESERVED_GAP_PERCENT'));
-    const workspaceTotalCPU = totalAvailableResources.cpu / 100 * workspacePercent;
-    const workspaceTotalMemory = totalAvailableResources.memory / 100 * workspacePercent;
-    let groupWeightSum = 0;
-    groups.forEach(g => {
-        groupWeightSum += g.allocation.weight;
-    });
-    const weightMemoryUnit = workspaceTotalMemory / groupWeightSum;
-    const weightCPUUnit = workspaceTotalCPU / groupWeightSum;
-
-    // Group usage calculations
-    let totalDeclaredResources = {
-        cpu: 0,
-        memory: 0
-    };
-    groups.forEach(g => {
-        g.workspace = {
-            resource: {
-                usableTotalMemory: g.allocation.weight * weightMemoryUnit,
-                usableTotalCPU: g.allocation.weight * weightCPUUnit,
-                usedTotalMemory: 0,
-                usedTotalCPU: 0
-            }
-        }
-        calculateGroupResource(fullData.serviceGroups, g);
-        totalDeclaredResources.cpu += g.workspace.resource.usedTotalCPU;
-        totalDeclaredResources.memory += g.workspace.resource.usedTotalMemory;
-    });
-
-    markOverloadedEcosystems(fullData, groups, totalDeclaredResources, totalAvailableResources);
 }
 
 function calculateGroupResource(dockerServiceGroups, oneGroup) {
@@ -91,8 +98,6 @@ function calculateGroupResource(dockerServiceGroups, oneGroup) {
             eco.workspace.overloaded = idx + 1;
         }
     });
-
-
 }
 
 function markOverloadedEcosystems(dockerData, groups, totalDeclaredResources, totalAvailableResources) {
@@ -108,17 +113,5 @@ function markOverloadedEcosystems(dockerData, groups, totalDeclaredResources, to
                 eco.markedAsRemove = true;
             }
         });
-        /*let sortedGroups = JSON.parse(JSON.stringify(
-            // Get projects which overloaded
-            groups.filter(g => g.workspace.resource.usedTotalMemory > g.workspace.resource.usableTotalMemory || g.workspace.resource.usedTotalCPU > g.workspace.resource.usableTotalCPU)
-        ));
-
-        if (sortedGroups.length > 0) {
-            // Sort projects by overload
-            sortedGroups.sort((a, b) => b.workspace.resource.usedTotalMemory - a.workspace.resource.usedTotalMemory);
-
-            // Mark remove the most overloded project's extra ecosystems. TODO this could be optimize
-            sortedGroups[0]
-        }*/
     }
 }

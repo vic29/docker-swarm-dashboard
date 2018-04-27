@@ -9,11 +9,18 @@ module.exports = {
 
     mark: function (dockerData, groups) {
         dockerData.serviceGroups.forEach(ecosystem => {
-            const isTheReviewFinished = isReviewFinished(ecosystem);
-            ecosystem.markedAsRemove = isTheReviewFinished || (!isTheReviewFinished && !gotInfoLabel(ecosystem)) || !isAllResourcesAllocatedInGoodWay(ecosystem);
+            try {
+                const isTheReviewFinished = isReviewFinished(ecosystem);
+                ecosystem.markedAsRemove = isTheReviewFinished || (!isTheReviewFinished && !gotInfoLabel(ecosystem)) || !isAllResourcesAllocatedInGoodWay(ecosystem);
 
-            markBadPriority(ecosystem);
-            markNotInAnyGroup(ecosystem, groups);
+                markBadPriority(ecosystem);
+                markNotInAnyGroup(ecosystem, groups);
+            } catch (e) {
+                const msg = 'General error in syntactical check: ' + e;
+                websocket.broadcast('server-error', msg);
+                // TODO Send email to admin: SUPPORT_EMAIL
+                console.log(msg);
+            }
         });
     }
 

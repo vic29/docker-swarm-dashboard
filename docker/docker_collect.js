@@ -1,5 +1,6 @@
 const env = require('../environment/envHandler.js');
 const Docker = require('dockerode');
+const websocket = require('../websocketHandler.js');
 
 // https://gist.github.com/jupeter/b39e11521452129af2af85cc855c91d7
 // majd service docker restart
@@ -41,37 +42,69 @@ module.exports = function (finishedCallback) {
                         }
                     };
 
-                    docker.listNodes(function (err, nodeData) {
-                        newData.nodes = nodeData;
-                        docker.listTasks(function (err, taskData) {
-                            docker.listServices(function (err, serviceData) {
-                                for (let service of serviceData) {
+                    docker.listNodes(function (errNode, nodeData) {
+                        if (!errNode) {
+                            newData.nodes = nodeData;
+                            docker.listTasks(function (errTask, taskData) {
+                                if (!errTask) {
+                                    docker.listServices(function (errService, serviceData) {
+                                        if (!errService) {
+                                            for (let service of serviceData) {
 
-                                    // Extend service with tasks (containers)
-                                    service['tasks'] = taskData.filter(task => task.ServiceID === service.ID);
+                                                try {
+                                                    // Extend service with tasks (containers)
+                                                    service['tasks'] = taskData.filter(task => task.ServiceID === service.ID);
 
-                                    const stackName = getArrayValue(service, ['Spec', 'TaskTemplate', 'ContainerSpec', 'Labels', 'com.docker.stack.namespace']);
-                                    if (stackName) {
-                                        addToStackService(newData.serviceGroups, stackName, service);
-                                    } else {
-                                        newData.serviceGroups.push({
-                                            isStack: false,
-                                            isService: true,
-                                            name: getArrayValue(service, ['Spec', 'Name']),
-                                            services: [service],
-                                            review: null,
-                                            markedMessage: ''
-                                        });
-                                    }
+                                                    const stackName = getArrayValue(service, ['Spec', 'TaskTemplate', 'ContainerSpec', 'Labels', 'com.docker.stack.namespace']);
+                                                    if (stackName) {
+                                                        addToStackService(newData.serviceGroups, stackName, service);
+                                                    } else {
+                                                        newData.serviceGroups.push({
+                                                            isStack: false,
+                                                            isService: true,
+                                                            name: getArrayValue(service, ['Spec', 'Name']),
+                                                            services: [service],
+                                                            review: null,
+                                                            markedAsRemove: false,
+                                                            markedMessage: ''
+                                                        });
+                                                    }
+                                                } catch (e) {
+                                                    const msg = 'Invalid response from docker api reading the meta data: ' + e;
+                                                    websocket.broadcast('server-error', msg);
+                                                    // TODO Send email to admin: SUPPORT_EMAIL
+                                                    console.log(msg);
+                                                }
+                                            }
+
+                                            console.timeEnd("Docker swarm collection time");
+
+                                            checkInProgress = false;
+                                            lastCheckedDate = new Date();
+                                            finishedCallback(newData, lastCheckedDate);
+                                        } else {
+                                            const msg = 'Invalid response from docker api when getting service data: ' + errService;
+                                            websocket.broadcast('server-error', msg);
+                                            // TODO Send email to admin: SUPPORT_EMAIL
+                                            console.log(msg);
+
+                                        }
+                                    });
+                                } else {
+                                    const msg = 'Invalid response from docker api when getting task data: ' + errTask;
+                                    websocket.broadcast('server-error', msg);
+                                    // TODO Send email to admin: SUPPORT_EMAIL
+                                    console.log(msg);
+
                                 }
-
-                                console.timeEnd("Docker swarm collection time");
-
-                                checkInProgress = false;
-                                lastCheckedDate = new Date();
-                                finishedCallback(newData, lastCheckedDate);
                             });
-                        });
+                        } else {
+                            const msg = 'Invalid response from docker api when getting node data: ' + errNode;
+                            websocket.broadcast('server-error', msg);
+                            // TODO Send email to admin: SUPPORT_EMAIL
+                            console.log(msg);
+
+                        }
                     });
                 }
             }
@@ -111,6 +144,7 @@ function addToStackService(finalList, stackName, service) {
             name: stackName,
             services: [service],
             review: null,
+            markedAsRemove: false,
             markedMessage: ''
         });
     }
