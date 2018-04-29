@@ -1,25 +1,36 @@
-
 <mat-toolbar color="primary" class="clearfix">
-    <div class="full-width clearfix">
+  <div class="full-width clearfix">
 
-      <div class="pull-left logo-icon">
-          <mat-icon>cloud_queue</mat-icon>
-      </div>
-      <div class="pull-left">
-        <h1>{{swarmConfig.cloudName}} Swarm Dashboard</h1>
-      </div>
-
-      <div class="online-user pull-right">
-          <mat-icon>person</mat-icon> <span>{{onlineNum}}</span>
-      </div>
-
-      <div class="refreshed-date pull-right">
-          Service refresh date: {{lastCheckedDate | date: 'EEEE, MMM d, y, h:mm:ss a' }}
-      </div>
-      <div class="help pull-right">
-          <button mat-icon-button (click)="openDialog()"><mat-icon>help</mat-icon></button>
-      </div>
+    <div class="pull-left logo-icon">
+      <mat-icon>cloud_queue</mat-icon>
     </div>
+    <div class="pull-left">
+      <a class="normal" href="/">
+        <h1>{{swarmConfig.cloudName}} Swarm Dashboard</h1>
+      </a>
+    </div>
+
+    <div class="online-user pull-right">
+      <mat-icon>person</mat-icon>
+      <span>{{onlineNum}}</span>
+    </div>
+
+    <div class="refreshed-date pull-right">
+      Service refresh date: {{lastCheckedDate | date: 'EEEE, MMM d, y, h:mm:ss a' }}
+    </div>
+    <div class="help pull-right">
+      <button mat-icon-button (click)="openDialog()">
+        <mat-icon>help</mat-icon>
+      </button>
+    </div>
+
+    <div class="help pull-right">
+      <button mat-icon-button (click)="openConfig()">
+        <mat-icon>settings</mat-icon>
+      </button>
+    </div>
+
+  </div>
 
 </mat-toolbar>
 

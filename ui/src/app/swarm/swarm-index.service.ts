@@ -19,6 +19,9 @@ export class SwarmIndexService {
   addTab(tabData): void {
     this.socket.emit('tabs-create', tabData);
   }
+  refreshTab(): void {
+    this.socket.emit('tabs-refresh', null);
+  }
   updateTab(tabName, tabData): void {
     tabData['label'] = tabName;
     this.socket.emit('tabs-update', tabData);
@@ -33,6 +36,13 @@ export class SwarmIndexService {
             observer.next(message);
         });
     });
+  }
+  getDockerResources(): Observable<any> {
+    return Observable.create((observer) => {
+      this.socket.on('docker-resources', (message) => {
+          observer.next(message);
+      });
+  });
   }
   getDockerLogs(containerId: string): Observable<any> {
     this.socket.emit('docker-logs', containerId);

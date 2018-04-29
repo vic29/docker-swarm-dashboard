@@ -1,7 +1,7 @@
 const env = require('../environment/envHandler.js');
 const removeByLabel = env.get('REMOVE_BY_LABEL');
 const labelPrefix = env.get('LABEL_PREFIX');
-
+const email = require('../sendEmail.js');
 const removeByResourceMissing = env.get('REMOVE_BY_MISSING_RESOURCE_ALLOCATION');
 const allowedResourceGapPercent = env.get('LIMIT_RESERVED_GAP_PERCENT') || 10;
 
@@ -18,7 +18,7 @@ module.exports = {
             } catch (e) {
                 const msg = 'General error in syntactical check: ' + e;
                 websocket.broadcast('server-error', msg);
-                // TODO Send email to admin: SUPPORT_EMAIL
+                email.sendToSupport('Marking problem on ' + env.get('SWARM_BASE_URL'), msg);
                 console.log(msg);
             }
         });

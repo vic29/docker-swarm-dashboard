@@ -78,36 +78,9 @@
     </mat-expansion-panel>
 
 
-    <mat-expansion-panel *ngIf="!isProjectTab"  [expanded]="panelOpenCache['manage']" (opened)="panelToggle('manage', true)" (closed)="panelToggle('manage', false)">
-      <mat-expansion-panel-header>
-          <mat-panel-title class="manage-tab">
-              Manage swarm dashboards
-          </mat-panel-title>
-          <mat-panel-description>
-            Manage full swarm and projects' dashboard
-          </mat-panel-description>
-      </mat-expansion-panel-header>
-      <ng-template matExpansionPanelContent>
 
-          <div class="panel panel-info">
-            <div class="panel-heading">
-              <h3 class="panel-title">Create new project dashboard</h3>
-            </div>
-            <div class="panel-body">
-                <form (ngSubmit)="onNewProjectSubmit()">
-                    <mat-form-field>
-                      <input matInput placeholder="* New Project's name" name="tabLabel" [(ngModel)]="newTab.label" autocomplete="off" />
-                    </mat-form-field>
-                    <mat-form-field>
-                        <input matInput placeholder="New Project's filter text" name="serviceFilter" [(ngModel)]="newTab.serviceFilter" autocomplete="off" />
-                      </mat-form-field>
-                    <button [disabled]="!newTab.label" mat-button color="primary" type="submit">Create</button>
-                  </form>
-            </div>
-          </div>
 
-      </ng-template>
-    </mat-expansion-panel>
+
 
    <mat-expansion-panel *ngIf="isProjectTab">
       <mat-expansion-panel-header>

@@ -4,7 +4,7 @@ import { Pipe, PipeTransform } from '@angular/core';
   name: 'resources'
 })
 export class ResourcesPipe implements PipeTransform {
-// TODO nemjó
+
   transform(data: any, args?: any): any {
     let value = 0;
     try {

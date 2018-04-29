@@ -1,6 +1,7 @@
 const env = require('../environment/envHandler.js');
 const Docker = require('dockerode');
 const websocket = require('../websocketHandler.js');
+const email = require('../sendEmail.js');
 
 // https://gist.github.com/jupeter/b39e11521452129af2af85cc855c91d7
 // majd service docker restart
@@ -72,7 +73,7 @@ module.exports = function (finishedCallback) {
                                                 } catch (e) {
                                                     const msg = 'Invalid response from docker api reading the meta data: ' + e;
                                                     websocket.broadcast('server-error', msg);
-                                                    // TODO Send email to admin: SUPPORT_EMAIL
+                                                    email.sendToSupport('Swarm API problem on ' + env.get('SWARM_BASE_URL'), msg);
                                                     console.log(msg);
                                                 }
                                             }
@@ -85,7 +86,7 @@ module.exports = function (finishedCallback) {
                                         } else {
                                             const msg = 'Invalid response from docker api when getting service data: ' + errService;
                                             websocket.broadcast('server-error', msg);
-                                            // TODO Send email to admin: SUPPORT_EMAIL
+                                            email.sendToSupport('Swarm API problem on ' + env.get('SWARM_BASE_URL'), msg);
                                             console.log(msg);
 
                                         }
@@ -93,7 +94,7 @@ module.exports = function (finishedCallback) {
                                 } else {
                                     const msg = 'Invalid response from docker api when getting task data: ' + errTask;
                                     websocket.broadcast('server-error', msg);
-                                    // TODO Send email to admin: SUPPORT_EMAIL
+                                    email.sendToSupport('Swarm API problem on ' + env.get('SWARM_BASE_URL'), msg);
                                     console.log(msg);
 
                                 }
@@ -101,7 +102,7 @@ module.exports = function (finishedCallback) {
                         } else {
                             const msg = 'Invalid response from docker api when getting node data: ' + errNode;
                             websocket.broadcast('server-error', msg);
-                            // TODO Send email to admin: SUPPORT_EMAIL
+                            email.sendToSupport('Swarm API problem on ' + env.get('SWARM_BASE_URL'), msg);
                             console.log(msg);
 
                         }

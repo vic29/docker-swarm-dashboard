@@ -71,6 +71,7 @@ import { SwarmDebugComponent } from './swarm/swarm-debug/swarm-debug.component';
 import { SwarmLogComponent } from './swarm/swarm-log/swarm-log.component';
 import { TimeCountDownPipe } from './swarm/pipe/time-count-down.pipe';
 import { ShowFailedTasksPipe } from './swarm/pipe/show-failed-tasks.pipe';
+import { SwarmConfigComponent } from './swarm/swarm-config/swarm-config.component';
 
 
 @NgModule({
@@ -97,7 +98,8 @@ import { ShowFailedTasksPipe } from './swarm/pipe/show-failed-tasks.pipe';
     SwarmDebugComponent,
     SwarmLogComponent,
     TimeCountDownPipe,
-    ShowFailedTasksPipe
+    ShowFailedTasksPipe,
+    SwarmConfigComponent
   ],
   imports: [
     BrowserModule, FormsModule,

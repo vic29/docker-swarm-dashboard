@@ -30,12 +30,6 @@ function randomInt(min, max) {
 }
 // END Web based variables
 
-// Auto merge old file!
-if (fs.existsSync('./data/tabs.json') && !fs.existsSync('./data/groups.dat')) {
-    persistGroups(JSON.parse(fs.readFileSync('./data/tabs.json').toString()));
-    fs.renameSync('./data/tabs.json', './data/tabs.json.backup');
-}
-
 if (!fs.existsSync('./data/groups.dat')) {
     try {
         fs.mkdirSync('data');
@@ -52,6 +46,9 @@ const dockerLogs = require('./docker/docker_log.js');
 require('./docker/docker_collect.js')(function (newData, lastCheckedDate) {
     gerritInfo.startCollect(newData, function (dataWithGerrit) {
         autoClean.startClean(dataWithGerrit, projectGroups);
+
+        websocket.broadcast('docker-resources', projectGroups);
+        projectGroups.forEach(g => g.workspace = null);
 
         if (!_.isEqual(lastData, dataWithGerrit)) {
             lastData = dataWithGerrit;
@@ -71,6 +68,9 @@ websocket.onConnection(function (client) {
     });
     websocket.broadcast('tabs', projectGroups);
 
+    client.on('tabs-refresh', function () {
+        websocket.broadcast('tabs', projectGroups);
+    });
     client.on('tabs-create', function (data) {
         projectGroups.push(data);
         persistGroups(projectGroups);

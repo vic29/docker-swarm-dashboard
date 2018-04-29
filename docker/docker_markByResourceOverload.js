@@ -1,5 +1,6 @@
 const env = require('../environment/envHandler.js');
 const websocket = require('../websocketHandler.js');
+const email = require('../sendEmail.js');
 
 module.exports = {
 
@@ -12,7 +13,7 @@ module.exports = {
 function calculateGroupArea(fullData, groups) {
     try {
         // Workspace number calculations
-        const totalAvailableResources = getTotalAvailableResources(fullData.nodes);
+        const totalAvailableResources = getTotalAvailableResources(fullData);
         const workspacePercent = 100 - (env.get('SYSMTEM_STANDBY_PERCENT') + env.get('LIMIT_RESERVED_GAP_PERCENT'));
         const workspaceTotalCPU = totalAvailableResources.cpu / 100 * workspacePercent;
         const workspaceTotalMemory = totalAvailableResources.memory / 100 * workspacePercent;
@@ -46,21 +47,21 @@ function calculateGroupArea(fullData, groups) {
     } catch (e) {
         const msg = 'General error in resource overload detection: ' + e;
         websocket.broadcast('server-error', msg);
-        // TODO Send email to admin: SUPPORT_EMAIL
+        email.sendToSupport('Marking problem on ' + env.get('SWARM_BASE_URL'), msg);
         console.log(msg);
     }
 }
 
-function getTotalAvailableResources(nodes) {
-    let result = {
+function getTotalAvailableResources(fullData) {
+    fullData.nodeTotal = {
         cpu: 0,
         memory: 0
     };
-    nodes.filter(n => n.Spec.Availability === 'active' && n.Status.State === 'ready').forEach(n => {
-        result.cpu += n.Description.Resources.NanoCPUs;
-        result.memory += n.Description.Resources.MemoryBytes;
+    fullData.nodes.filter(n => n.Spec.Availability === 'active' && n.Status.State === 'ready').forEach(n => {
+        fullData.nodeTotal.cpu += n.Description.Resources.NanoCPUs;
+        fullData.nodeTotal.memory += n.Description.Resources.MemoryBytes;
     });
-    return result;
+    return fullData.nodeTotal;
 }
 
 function calculateGroupResource(dockerServiceGroups, oneGroup) {

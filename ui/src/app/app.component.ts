@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material';
 import { SwarmHelpComponent } from './swarm/swarm-help/swarm-help.component';
 import { SwarmIndexService } from './swarm/swarm-index.service';
@@ -17,7 +18,7 @@ export class AppComponent implements OnInit {
   onlineNum;
   swarmConfig = {cloudName: ''};
 
-  constructor(public dialog: MatDialog, public swarmService: SwarmIndexService, private title: Title) {}
+  constructor(public dialog: MatDialog, public swarmService: SwarmIndexService, private title: Title, private router: Router) {}
 
   ngOnInit() {
     this.swarmService.getLastRefresh().subscribe(message => {
@@ -39,6 +40,10 @@ export class AppComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       console.log(`Dialog result: ${result}`);
     });
+  }
+
+  openConfig() {
+    this.router.navigateByUrl('/config');
   }
 
 }

@@ -1,5 +1,6 @@
 const env = require('../environment/envHandler.js');
 const shell = require('shelljs');
+const email = require('../sendEmail.js');
 const syntacticalCheckModule = require('./docker_markBySyntactically.js');
 const resourceOverloadModule = require('./docker_markByResourceOverload.js');
 let cleanInProgress = false;
@@ -26,9 +27,10 @@ module.exports = {
                         if (stderr) {
                             console.log('Error while deleting ecosystem: ', ecosystem, stderr);
                         } else {
-                            console.log('Ecosystem removed: ' + ecosystem.name + ' ; because: ', ecosystem.markedMessage);
+                            console.log( 'Ecosystem removed: ' + ecosystem.name + ' ; because: ' + ecosystem.markedMessage);
                             console.log('=================================');
-                            // TODO Send email based by label! ecosystem.markedMessage adatot, és a support-nak is!
+                            const msg = 'Ecosystem removed: ' + ecosystem.name + ' ; because: ' + ecosystem.markedMessage + '<p>Meta data: <br/><pre>' + JSON.stringify(ecosystem, null, 4) + '</pre></p>';
+                            email.sendToProjectAndSupport(ecosystem, 'Ecosystem removed from ' + env.get('SWARM_BASE_URL') + ' - ' + ecosystem.name, msg);
                         }
                     });
                 } else {

@@ -12,7 +12,6 @@ export class SwarmProjectComponent implements OnInit {
   @Input() dockerData: any;
   @Input() isProjectTab: boolean;
 
-  newTab = {label: null, serviceFilter: null, links: []};
   origTab;
   linksJson;
   panelOpenCache = {};
@@ -115,10 +114,7 @@ export class SwarmProjectComponent implements OnInit {
     this.swarmService.removeTab(tabName);
   }
 
-  onNewProjectSubmit = (): void => {
-    this.swarmService.addTab(this.newTab);
-    this.newTab = {label: null, serviceFilter: null, links: []};
-  }
+
 
   onTabLinksSubmit = (): void => {
     if ( this.isValidObject(this.linksJson) ) {
