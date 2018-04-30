@@ -6,49 +6,65 @@
   </mat-expansion-panel-header>
   <ng-template matExpansionPanelContent>
 
-    <form (ngSubmit)="editPools()">
-      <div *ngFor="let tab of tabs; let i = index;">
-        <div *ngIf="i > 0">
+    <div class="row">
+
+      <div class="col-md-7">
+        <form (ngSubmit)="editPools()">
+          <div *ngFor="let tab of tabs; let i = index;">
+            <div *ngIf="i > 0">
+              <mat-form-field>
+                <input required matInput placeholder="* Pool name-" name="tabLabel{{i}}" [(ngModel)]="tab.label" autocomplete="off" />
+                <mat-error>Required</mat-error>
+              </mat-form-field>
+              <mat-form-field>
+                <input required matInput placeholder="* Pool filter text" name="serviceFilter{{i}}" [(ngModel)]="tab.serviceFilter" autocomplete="off"
+                />
+                <mat-error>Required</mat-error>
+              </mat-form-field>
+              <mat-form-field>
+                <input required type="number" matInput placeholder="* Weight" name="weight{{i}}" [(ngModel)]="tab.allocation.weight" autocomplete="off"
+                />
+                <mat-error>Required</mat-error>
+              </mat-form-field>
+
+              <button mat-button matSuffix mat-icon-button (click)="tabs.splice(i, 1);"><mat-icon>delete_forever</mat-icon></button>
+
+              <span *ngIf="chartData.dataTable.length > 0">
+                CPU:    <strong>{{dockerResources | filterResourcesByGroupLabel : {label: tab.label, resource: 'usableTotalCPU'} | resources: {type: 'NanoCPUs'} }}</strong>;
+                Memory: <strong>{{dockerResources | filterResourcesByGroupLabel : {label: tab.label, resource: 'usableTotalMemory'} | resources: {type: 'MemoryBytes'} }}</strong>
+              </span>
+            </div>
+          </div>
           <mat-form-field>
-            <input required matInput placeholder="* Pool name-" name="tabLabel{{i}}" [(ngModel)]="tab.label" autocomplete="off" />
+            <input required matInput placeholder="* New pool name" name="tabLabel" [(ngModel)]="newTab.label" autocomplete="off" />
             <mat-error>Required</mat-error>
           </mat-form-field>
           <mat-form-field>
-            <input required matInput placeholder="* Pool filter text" name="serviceFilter{{i}}" [(ngModel)]="tab.serviceFilter" autocomplete="off"
+            <input required matInput placeholder="* New pool filter text" name="serviceFilter" [(ngModel)]="newTab.serviceFilter" autocomplete="off"
             />
             <mat-error>Required</mat-error>
           </mat-form-field>
           <mat-form-field>
-            <input required type="number" matInput placeholder="* Weight" name="weight{{i}}" [(ngModel)]="tab.allocation.weight" autocomplete="off"
+            <input required type="number" matInput placeholder="* Weight" name="weight" [(ngModel)]="newTab.allocation.weight" autocomplete="off"
             />
             <mat-error>Required</mat-error>
           </mat-form-field>
 
-          <span>CPU: <strong>0</strong>; Memory: 0</span>
-        </div>
+          <div>
+            <mat-form-field>
+              <input type="password" matInput placeholder="Master password" name="savepwd" [(ngModel)]="passwd" autocomplete="off" />
+            </mat-form-field>
+            <button mat-raised-button color="primary" type="submit" [disabled]="!passwd" >Save & Activate (10 sec)</button>
+          </div>
+        </form>
       </div>
-      <mat-form-field>
-        <input required matInput placeholder="* New pool name" name="tabLabel" [(ngModel)]="newTab.label" autocomplete="off" />
-        <mat-error>Required</mat-error>
-      </mat-form-field>
-      <mat-form-field>
-        <input required matInput placeholder="* New pool filter text" name="serviceFilter" [(ngModel)]="newTab.serviceFilter" autocomplete="off"
-        />
-        <mat-error>Required</mat-error>
-      </mat-form-field>
-      <mat-form-field>
-        <input required type="number" matInput placeholder="* Weight" name="weight" [(ngModel)]="newTab.allocation.weight" autocomplete="off"
-        />
-        <mat-error>Required</mat-error>
-      </mat-form-field>
 
-      <div>
-        <mat-form-field>
-          <input matInput placeholder="Master password" name="savepwd" [(ngModel)]="passwd" autocomplete="off" />
-        </mat-form-field>
-        <button mat-button color="primary" type="submit">Update pool</button>
+      <div class="col-md-5">
+        <google-chart #cchart *ngIf="chartData.dataTable.length > 0" [data]="chartData"></google-chart>
       </div>
-    </form>
+
+    </div>
+
 
   </ng-template>
 </mat-expansion-panel>

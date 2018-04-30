@@ -17,6 +17,9 @@ const path = require('path');
 const _ = require('lodash');
 const dockerLogsMaxRowNum = env.get('DOCKER_LOGS_MAX_ENTRY_NUM') || 2000;
 const websocket = require('./websocketHandler.js');
+const crypto = require('crypto'),
+    algorithm = 'aes-256-ctr',
+    password = env.get('CRYPT_KEY');
 
 let lastData = {
     config: {
@@ -29,6 +32,12 @@ function randomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
 }
 // END Web based variables
+
+// Auto merge old file!
+if (fs.existsSync('./data/tabs.json') && !fs.existsSync('./data/groups.dat')) {
+    persistGroups(JSON.parse(fs.readFileSync('./data/tabs.json').toString()));
+    fs.renameSync('./data/tabs.json', './data/tabs.json.backup');
+}
 
 if (!fs.existsSync('./data/groups.dat')) {
     try {
@@ -71,12 +80,16 @@ websocket.onConnection(function (client) {
     client.on('tabs-refresh', function () {
         websocket.broadcast('tabs', projectGroups);
     });
-    client.on('tabs-create', function (data) {
-        projectGroups.push(data);
-        persistGroups(projectGroups);
-        websocket.broadcast('tabs', projectGroups);
+    client.on('tabs-save', function (data) {
+        if ( data.pwd === env.get('MASTER_PWD') ) {
+            projectGroups = data.data;
+            persistGroups(projectGroups);
+            websocket.broadcast('tabs', projectGroups);
+        } else {
+            websocket.broadcast('bad-pwd', 'Bad master password');
+        }
     });
-    client.on('tabs-update', function (data) {
+    client.on('tabs-links', function (data) {
         projectGroups.forEach(t => {
             if (t.label === data.label) {
                 if (data.links) {
@@ -87,11 +100,6 @@ websocket.onConnection(function (client) {
                 }
             }
         });
-        persistGroups(projectGroups);
-        websocket.broadcast('tabs', projectGroups);
-    });
-    client.on('tabs-delete', function (delLabel) {
-        projectGroups = projectGroups.filter(e => e.label !== delLabel);
         persistGroups(projectGroups);
         websocket.broadcast('tabs', projectGroups);
     });
@@ -131,13 +139,12 @@ function publicOnlineUserNum() {
 }
 
 function persistGroups(groupData) {
-    const encData = JSON.stringify(groupData, null, 4);
-    fs.writeFileSync('./data/groups.dat', encData);
+    fs.writeFileSync('./data/groups.dat', encrypt(groupData));
 }
 
 function getGroups() {
     try {
-        return JSON.parse(fs.readFileSync('./data/groups.dat').toString());
+        return decrypt(fs.readFileSync('./data/groups.dat').toString());
     } catch (e) {
         console.log('Error while getting groups data!', e);
         return [];
@@ -240,6 +247,20 @@ function processDelete(commandPrefix, deleteUrl, req, res) {
         res.status(400);
         res.send('Error while deleting ecosystem! Please inform the DockerAdmin@loxon.eu group!');
     }
+}
+
+function encrypt(object){
+    var cipher = crypto.createCipher(algorithm, password)
+    var crypted = cipher.update( JSON.stringify(object) ,'utf8','hex')
+    crypted += cipher.final('hex');
+    return crypted;
+}
+
+function decrypt(text){
+    var decipher = crypto.createDecipher(algorithm, password)
+    var dec = decipher.update(text,'hex','utf8')
+    dec += decipher.final('utf8');
+    return JSON.parse(dec);
 }
 
 server.listen(8080);

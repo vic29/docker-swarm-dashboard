@@ -17,7 +17,7 @@ export class ResourcesPipe implements PipeTransform {
         value = parseInt(data.Spec.TaskTemplate.Resources[args.check][args.type]);
         if (isNaN(value)) { throw new Error('NaN'); }
       } catch (e2) {
-        value = 0;
+        value = isNaN(data) ? 0 : data;
       }
     }
 
@@ -31,7 +31,7 @@ export class ResourcesPipe implements PipeTransform {
       value = 0;
     }
 
-    return value;
+    return value.toFixed(3);
   }
 
   humanFileSize(bytes, si) {

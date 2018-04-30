@@ -1,143 +1,117 @@
 <mat-accordion [multi]="true">
 
-    <mat-expansion-panel *ngIf="tab.links && tab.links.length > 0"  [expanded]="panelOpenCache['links']" (opened)="panelToggle('links', true)" (closed)="panelToggle('links', false)">
-      <mat-expansion-panel-header>
-          <mat-panel-title>
-              Links: {{tab.label}}
-            </mat-panel-title>
-            <mat-panel-description>
-              Useful links for {{tab.label}} project
-            </mat-panel-description>
-      </mat-expansion-panel-header>
-      <ng-template matExpansionPanelContent>
-          <div class="row">
-            <div *ngFor="let grp of tab.links" class="col-md-2">
-                <div class="list-group">
-                  <div class="list-group-item list-group-item-info text-center">{{grp.title}}</div>
-                  <a *ngFor="let lnk of grp.links" [href]="lnk.link" target="_blank" class="list-group-item">{{lnk.name}}</a>
-                </div>
-            </div>
+  <mat-expansion-panel *ngIf="isEditLinks" [expanded]="true">
+    <mat-expansion-panel-header>
+      <mat-panel-title class="manage-tab">
+        Manage tab links
+      </mat-panel-title>
+      <mat-panel-description>
+        Manage tab links for {{tab.label}} project dashboard
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+    <ng-template matExpansionPanelContent>
+
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Links for {{tab.label}} project</h3>
+        </div>
+        <div class="panel-body">
+          <form (ngSubmit)="onTabLinksSubmit()">
+            <mat-form-field class="full-width">
+              <textarea matInput placeholder="Links definition" matTextareaAutosize matAutosizeMinRows="1" matAutosizeMaxRows="50" name="linksJson"
+                [(ngModel)]="linksJson"></textarea>
+              <mat-hint *ngIf="!isValidObject(linksJson)" class="error-input">Json is not valid!</mat-hint>
+            </mat-form-field>
+            <button mat-button color="primary" type="button" (click)="resetLinks()">Reset</button>
+            <button [disabled]="!isValidObject(linksJson)" mat-button color="primary" type="button" (click)="previewLinks()">Preview</button>
+            <button [disabled]="!isValidObject(linksJson)" mat-button color="primary" type="submit">Save links</button>
+          </form>
+        </div>
+      </div>
+
+    </ng-template>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel [expanded]="panelOpenCache['links']" (opened)="panelToggle('links', true)" (closed)="panelToggle('links', false)">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        Links: {{tab.label}}
+        <button class="edit-links" mat-button matSuffix mat-icon-button (click)="isEditLinks=!isEditLinks">
+          <mat-icon>mode_edit</mat-icon>
+        </button>
+      </mat-panel-title>
+      <mat-panel-description>
+        Useful links for {{tab.label}} project
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+    <ng-template matExpansionPanelContent>
+      <div class="row">
+        <div *ngFor="let grp of tab.links" class="col-md-2">
+          <div class="list-group">
+            <div class="list-group-item list-group-item-info text-center">{{grp.title}}</div>
+            <a *ngFor="let lnk of grp.links" [href]="lnk.link" target="_blank" class="list-group-item">{{lnk.name}}</a>
           </div>
-      </ng-template>
-    </mat-expansion-panel>
+        </div>
+      </div>
+    </ng-template>
+  </mat-expansion-panel>
 
-    <mat-expansion-panel [expanded]="panelOpenCache['services']" (opened)="panelToggle('services', true)" (closed)="panelToggle('services', false)">
-      <mat-expansion-panel-header>
-          <mat-panel-title>
-              Ecosystem: {{tab.label}}
-            </mat-panel-title>
-            <mat-panel-description>
-              Detailed ecosystem informations from the {{dockerData.config.cloudName}}
-            </mat-panel-description>
-      </mat-expansion-panel-header>
-      <ng-template matExpansionPanelContent>
-          <app-swarm-table *ngIf="dockerData && dockerData.serviceGroups && dockerData.serviceGroups.length > 0" [dockerData]="dockerData" [filteredServiceGroups]="dockerData.serviceGroups | filterAnywhere: tab.serviceFilter"></app-swarm-table>
-      </ng-template>
-    </mat-expansion-panel>
+  <mat-expansion-panel [expanded]="panelOpenCache['services']" (opened)="panelToggle('services', true)" (closed)="panelToggle('services', false)">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        Ecosystem: {{tab.label}}
+      </mat-panel-title>
+      <mat-panel-description>
+        Detailed ecosystem informations from the {{dockerData.config.cloudName}}
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+    <ng-template matExpansionPanelContent>
+      <app-swarm-table *ngIf="dockerData && dockerData.serviceGroups && dockerData.serviceGroups.length > 0" [dockerData]="dockerData"
+        [filteredServiceGroups]="dockerData.serviceGroups | filterAnywhere: tab.serviceFilter"></app-swarm-table>
+    </ng-template>
+  </mat-expansion-panel>
 
-    <mat-expansion-panel [expanded]="panelOpenCache['ports']" (opened)="panelToggle('ports', true)" (closed)="panelToggle('ports', false)">
-      <mat-expansion-panel-header>
-          <mat-panel-title>
-              Ports: {{tab.label}}
-            </mat-panel-title>
-            <mat-panel-description>
-              Reserved ports table from the {{dockerData.config.cloudName}}
-            </mat-panel-description>
-      </mat-expansion-panel-header>
-      <ng-template matExpansionPanelContent>
-          <app-swarm-port-table *ngIf="dockerData && dockerData.serviceGroups && dockerData.serviceGroups.length > 0" [serviceGroups]="dockerData.serviceGroups | filterAnywhere: tab.serviceFilter" [dockerData]="dockerData"></app-swarm-port-table>
-      </ng-template>
-    </mat-expansion-panel>
+  <mat-expansion-panel [expanded]="panelOpenCache['ports']" (opened)="panelToggle('ports', true)" (closed)="panelToggle('ports', false)">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        Ports: {{tab.label}}
+      </mat-panel-title>
+      <mat-panel-description>
+        Reserved ports table from the {{dockerData.config.cloudName}}
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+    <ng-template matExpansionPanelContent>
+      <app-swarm-port-table *ngIf="dockerData && dockerData.serviceGroups && dockerData.serviceGroups.length > 0" [serviceGroups]="dockerData.serviceGroups | filterAnywhere: tab.serviceFilter"
+        [dockerData]="dockerData"></app-swarm-port-table>
+    </ng-template>
+  </mat-expansion-panel>
 
-    <mat-expansion-panel [expanded]="panelOpenCache['resource_declare']" (opened)="panelToggle('resource_declare', true)" (closed)="panelToggle('resource_declare', false)">
-      <mat-expansion-panel-header>
-          <mat-panel-title>
-              Resource declaration by ecosystems
-            </mat-panel-title>
-            <mat-panel-description>
-              Filtered ecosystems' resource declaration in the {{dockerData.config.cloudName}} cloud
-            </mat-panel-description>
-      </mat-expansion-panel-header>
-      <ng-template matExpansionPanelContent>
-          TODO
-      </ng-template>
-    </mat-expansion-panel>
+  <mat-expansion-panel [expanded]="panelOpenCache['resource_declare']" (opened)="panelToggle('resource_declare', true)" (closed)="panelToggle('resource_declare', false)">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        Resource declaration by ecosystems
+      </mat-panel-title>
+      <mat-panel-description>
+        Filtered ecosystems' resource declaration in the {{dockerData.config.cloudName}} cloud
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+    <ng-template matExpansionPanelContent>
+      TODO
+    </ng-template>
+  </mat-expansion-panel>
 
-    <mat-expansion-panel  [expanded]="panelOpenCache['summ_resource']" (opened)="panelToggle('summ_resource', true)" (closed)="panelToggle('summ_resource', false)">
-      <mat-expansion-panel-header>
-          <mat-panel-title>
-              Summarized Resource declaration
-            </mat-panel-title>
-            <mat-panel-description>
-              {{tab.label}}'s summarized CPU and memory declaration in the {{dockerData.config.cloudName}} cloud
-            </mat-panel-description>
-      </mat-expansion-panel-header>
-      <ng-template matExpansionPanelContent>
-          TODO
-      </ng-template>
-    </mat-expansion-panel>
-
-
-
-
-
-
-   <mat-expansion-panel *ngIf="isProjectTab">
-      <mat-expansion-panel-header>
-          <mat-panel-title class="manage-tab">
-              Manage tab
-          </mat-panel-title>
-          <mat-panel-description>
-            Manage {{tab.label}} project dashboard
-          </mat-panel-description>
-      </mat-expansion-panel-header>
-      <ng-template matExpansionPanelContent>
-
-          <div class="panel panel-default">
-              <div class="panel-heading">
-                <h3 class="panel-title">Default filter for {{tab.label}} project</h3>
-              </div>
-              <div class="panel-body">
-                  <form (ngSubmit)="onTabFilterSubmit()">
-                    <mat-form-field>
-                      <input matInput placeholder="Project filter text" name="serviceFilter" [(ngModel)]="tab.serviceFilter" autocomplete="off" />
-                      <mat-hint *ngIf="origTab.serviceFilter != tab.serviceFilter">Change is temporary! Save it!</mat-hint>
-                    </mat-form-field>
-                    <button [disabled]="!tab.serviceFilter" mat-button color="primary" type="submit">Save filter</button>
-                  </form>
-              </div>
-            </div>
-
-            <div class="panel panel-default">
-              <div class="panel-heading">
-                <h3 class="panel-title">Links for {{tab.label}} project</h3>
-              </div>
-              <div class="panel-body">
-                  <form (ngSubmit)="onTabLinksSubmit()">
-                      <mat-form-field class="full-width">
-                        <textarea matInput placeholder="Links definition" matTextareaAutosize matAutosizeMinRows="1" matAutosizeMaxRows="50" name="linksJson" [(ngModel)]="linksJson"></textarea>
-                        <mat-hint *ngIf="!isValidObject(linksJson)" class="error-input">Json is not valid!</mat-hint>
-                      </mat-form-field>
-                      <button mat-button color="primary" type="button" (click)="resetLinks()">Reset</button>
-                      <button [disabled]="!isValidObject(linksJson)" mat-button color="primary" type="button" (click)="previewLinks()">Preview</button>
-                      <button [disabled]="!isValidObject(linksJson)" mat-button color="primary" type="submit">Save links</button>
-                  </form>
-              </div>
-            </div>
-
-            <div class="panel panel-danger">
-              <div class="panel-heading">
-                <h3 class="panel-title">Remove {{tab.label}} project dashboard</h3>
-              </div>
-              <div class="panel-body">
-                  <mat-form-field>
-                    <input matInput placeholder="Type the tab name to confirm the delete" #confirmDelInput value="" autocomplete="off" />
-                  </mat-form-field>
-                  <button [disabled]="confirmDelInput.value != tab.label" mat-button color="primary" type="button" (click)="removeTab(tab.label)">Remove project tab</button>
-              </div>
-            </div>
-
-      </ng-template>
-    </mat-expansion-panel>
+  <mat-expansion-panel [expanded]="panelOpenCache['summ_resource']" (opened)="panelToggle('summ_resource', true)" (closed)="panelToggle('summ_resource', false)">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        Summarized Resource declaration
+      </mat-panel-title>
+      <mat-panel-description>
+        {{tab.label}}'s summarized CPU and memory declaration in the {{dockerData.config.cloudName}} cloud
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+    <ng-template matExpansionPanelContent>
+      TODO
+    </ng-template>
+  </mat-expansion-panel>
 
 </mat-accordion>

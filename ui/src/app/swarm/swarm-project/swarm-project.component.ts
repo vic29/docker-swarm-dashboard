@@ -12,87 +12,10 @@ export class SwarmProjectComponent implements OnInit {
   @Input() dockerData: any;
   @Input() isProjectTab: boolean;
 
+  isEditLinks = false;
   origTab;
   linksJson;
   panelOpenCache = {};
-
-  /* For test /
-  type = 'horizontalBar';
-  data = {
-    labels: ['DKRV01', 'DKRV02', 'DKRV03', 'DKRV04', 'DKRV05'],
-    datasets: [{
-      label: 'Total CPU',
-      data: [100, 100, 150, 100, 80],
-      stack: 'grp1',
-      backgroundColor: [
-          'rgba(0,147,43,0.2)',
-          'rgba(0,147,43,0.2)',
-          'rgba(0,147,43,0.2)',
-          'rgba(0,147,43,0.2)',
-          'rgba(0,147,43,0.2)'
-      ],
-      borderColor: [
-          'rgba(0,147,43,1)',
-          'rgba(0,147,43,1)',
-          'rgba(0,147,43,1)',
-          'rgba(0,147,43,1)',
-          'rgba(0,147,43,1)'
-      ],
-      borderWidth: 1
-  }, {
-        label: 'Eco 1',
-        data: [100, 5, 21],
-        stack: 'grp2',
-        backgroundColor: [
-            'rgba(255, 99, 132, 0.2)',
-            'rgba(255, 99, 132, 0.2)',
-            'rgba(255, 99, 132, 0.2)'
-        ],
-        borderColor: [
-            'rgba(255,99,132,1)',
-            'rgba(255,99,132,1)',
-            'rgba(255,99,132,1)'
-        ],
-        borderWidth: 1
-    },
-    {
-      label: 'Eco 2',
-      data: [100, 13, 32],
-      stack: 'grp2',
-      backgroundColor: [
-          'rgba(255, 206, 86, 0.2)',
-          'rgba(255, 206, 86, 0.2)',
-          'rgba(255, 206, 86, 0.2)'
-      ],
-      borderColor: [
-          'rgba(255, 206, 86, 1)',
-          'rgba(255, 206, 86, 1)',
-          'rgba(255, 206, 86, 1)'
-      ],
-      borderWidth: 1
-    }]
-  };
-  options = {
-    responsive: true,
-    maintainAspectRatio: true,
-    legend: {
-      position: 'bottom'
-    },
-    scales: {
-      xAxes: [{
-          stacked: true
-      }],
-      yAxes: [{
-          stacked: true
-      }]
-    },
-    tooltips: {
-      mode: 'nearest'
-    }
-  };
-
-    // <chart [type]="type" [data]="data" [options]="options"></chart>
-   / For Test */
 
   constructor(private swarmService: SwarmIndexService) { }
 
@@ -107,29 +30,24 @@ export class SwarmProjectComponent implements OnInit {
     localStorage.setItem( this.tab.label + '-panels', JSON.stringify(this.panelOpenCache));
   }
 
-  onTabFilterSubmit = (): void => {
-    this.swarmService.updateTab(this.tab.label, {serviceFilter: this.tab.serviceFilter});
-  }
-  removeTab = (tabName: string): void => {
-    this.swarmService.removeTab(tabName);
-  }
-
-
-
   onTabLinksSubmit = (): void => {
     if ( this.isValidObject(this.linksJson) ) {
       this.tab.links = JSON.parse(this.linksJson);
-      this.swarmService.updateTab(this.tab.label, {links: this.tab.links});
+      this.swarmService.saveTabLinks(this.tab.label, {links: this.tab.links});
+      this.isEditLinks = !this.isEditLinks;
+      this.panelToggle('links', true);
     }
   }
   previewLinks = (): void => {
     if ( this.isValidObject(this.linksJson) ) {
       this.tab.links = JSON.parse(this.linksJson);
+      this.panelToggle('links', true);
     }
   }
   resetLinks = (): void => {
     this.tab.links = this.origTab.links;
     this.linksJson = JSON.stringify(this.tab.links, null, 4);
+    this.panelToggle('links', true);
   }
 
   isValidObject = (jsonString: string): boolean => {

@@ -16,18 +16,22 @@ export class SwarmIndexService {
     this.socket = io(this.url);
   }
 
-  addTab(tabData): void {
-    this.socket.emit('tabs-create', tabData);
+  saveTabMeta(pwd, tabsData): void {
+    this.socket.emit('tabs-save', {pwd: pwd, data: tabsData});
   }
   refreshTab(): void {
     this.socket.emit('tabs-refresh', null);
   }
-  updateTab(tabName, tabData): void {
+  saveTabLinks(tabName, tabData): void {
     tabData['label'] = tabName;
-    this.socket.emit('tabs-update', tabData);
+    this.socket.emit('tabs-links', tabData);
   }
-  removeTab(tabName): void {
-    this.socket.emit('tabs-delete', tabName);
+  badMasterPwd(): Observable<any> {
+    return Observable.create((observer) => {
+        this.socket.on('bad-pwd', (message) => {
+            observer.next(message);
+        });
+    });
   }
 
   getDockerData(): Observable<any> {

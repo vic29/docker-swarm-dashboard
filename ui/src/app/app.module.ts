@@ -4,8 +4,6 @@ import { HttpClientModule } from '@angular/common/http';
 
 import { MarkdownToHtmlModule } from 'ng2-markdown-to-html';
 
-import { ChartModule } from 'angular2-chartjs';
-
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -46,6 +44,8 @@ import {
 } from '@angular/material';
 import {PopoverModule} from "ngx-popover";
 
+import { Ng2GoogleChartsModule } from 'ng2-google-charts';
+
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { SwarmIndexComponent } from './swarm/swarm-index/swarm-index.component';
@@ -72,6 +72,7 @@ import { SwarmLogComponent } from './swarm/swarm-log/swarm-log.component';
 import { TimeCountDownPipe } from './swarm/pipe/time-count-down.pipe';
 import { ShowFailedTasksPipe } from './swarm/pipe/show-failed-tasks.pipe';
 import { SwarmConfigComponent } from './swarm/swarm-config/swarm-config.component';
+import { FilterResourcesByGroupLabelPipe } from './swarm/pipe/filter-resources-by-group-label.pipe';
 
 
 @NgModule({
@@ -99,12 +100,12 @@ import { SwarmConfigComponent } from './swarm/swarm-config/swarm-config.componen
     SwarmLogComponent,
     TimeCountDownPipe,
     ShowFailedTasksPipe,
-    SwarmConfigComponent
+    SwarmConfigComponent,
+    FilterResourcesByGroupLabelPipe
   ],
   imports: [
     BrowserModule, FormsModule,
     AppRoutingModule, HttpClientModule,
-    ChartModule,
     /*BrowserAnimationsModule,*/ NoopAnimationsModule,
     MatAutocompleteModule,
     MatButtonModule,
@@ -139,7 +140,8 @@ import { SwarmConfigComponent } from './swarm/swarm-config/swarm-config.componen
     MatToolbarModule,
     MatTooltipModule,
     MarkdownToHtmlModule.forRoot(),
-    PopoverModule
+    PopoverModule,
+    Ng2GoogleChartsModule
   ],
   providers: [DatePipe, FilterAnywherePipe, SwarmIndexService],
   bootstrap: [AppComponent],
