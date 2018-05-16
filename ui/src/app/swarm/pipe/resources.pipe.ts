@@ -26,12 +26,14 @@ export class ResourcesPipe implements PipeTransform {
         value = value / 1000000000;
       } else if ( args.type === 'MemoryBytes' ) {
         return this.humanFileSize(value, true);
+      } else if ( args.type === 'MemoryGBNumberOnly' ) {
+        value = value / 1024 / 1024 / 1024;
       }
     } catch (e) {
       value = 0;
     }
 
-    return value.toFixed(3);
+    return parseFloat(value.toFixed(3));
   }
 
   humanFileSize(bytes, si) {

@@ -32,29 +32,50 @@
     </ng-template>
   </mat-expansion-panel>
 
-  <mat-expansion-panel [expanded]="panelOpenCache['links']" (opened)="panelToggle('links', true)" (closed)="panelToggle('links', false)">
-    <mat-expansion-panel-header>
-      <mat-panel-title>
-        Links: {{tab.label}}
-        <button class="edit-links" mat-button matSuffix mat-icon-button (click)="isEditLinks=!isEditLinks">
-          <mat-icon>mode_edit</mat-icon>
-        </button>
-      </mat-panel-title>
-      <mat-panel-description>
-        Useful links for {{tab.label}} project
-      </mat-panel-description>
-    </mat-expansion-panel-header>
-    <ng-template matExpansionPanelContent>
-      <div class="row">
-        <div *ngFor="let grp of tab.links" class="col-md-2">
-          <div class="list-group">
-            <div class="list-group-item list-group-item-info text-center">{{grp.title}}</div>
-            <a *ngFor="let lnk of grp.links" [href]="lnk.link" target="_blank" class="list-group-item">{{lnk.name}}</a>
+  <div class="row">
+
+    <div class="col-md-8">
+      <mat-expansion-panel [expanded]="panelOpenCache['links']" (opened)="panelToggle('links', true)" (closed)="panelToggle('links', false)">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            Links: {{tab.label}}
+            <button class="edit-links" mat-button matSuffix mat-icon-button (click)="isEditLinks=!isEditLinks">
+              <mat-icon>mode_edit</mat-icon>
+            </button>
+          </mat-panel-title>
+          <mat-panel-description>
+            Useful links for {{tab.label}} project
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+        <ng-template matExpansionPanelContent>
+          <div class="row">
+            <div *ngFor="let grp of tab.links" class="col-md-3">
+              <div class="list-group">
+                <div class="list-group-item list-group-item-info text-center">{{grp.title}}</div>
+                <a *ngFor="let lnk of grp.links" [href]="lnk.link" target="_blank" class="list-group-item">{{lnk.name}}</a>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-    </ng-template>
-  </mat-expansion-panel>
+        </ng-template>
+      </mat-expansion-panel>
+    </div>
+
+    <div class="col-md-4">
+      <mat-expansion-panel [expanded]="panelOpenCache['chart-overview']" (opened)="panelToggle('chart-overview', true)" (closed)="panelToggle('chart-overview', false)">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            Resource overview: {{tab.label}}
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <ng-template matExpansionPanelContent>
+          <div class="row">
+            <div class="col-md-6"><google-chart #chartcpu [data]="chartDataCpu"></google-chart></div>
+            <div class="col-md-6"><google-chart #chartmemory [data]="chartDataMemory"></google-chart></div>
+          </div>
+        </ng-template>
+      </mat-expansion-panel>
+    </div>
+  </div>
 
   <mat-expansion-panel [expanded]="panelOpenCache['services']" (opened)="panelToggle('services', true)" (closed)="panelToggle('services', false)">
     <mat-expansion-panel-header>

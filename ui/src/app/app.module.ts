@@ -73,6 +73,8 @@ import { TimeCountDownPipe } from './swarm/pipe/time-count-down.pipe';
 import { ShowFailedTasksPipe } from './swarm/pipe/show-failed-tasks.pipe';
 import { SwarmConfigComponent } from './swarm/swarm-config/swarm-config.component';
 import { FilterResourcesByGroupLabelPipe } from './swarm/pipe/filter-resources-by-group-label.pipe';
+import { PaginationPipe } from './swarm/pipe/pagination.pipe';
+import { PaginationPagesPipe } from './swarm/pipe/pagination-pages.pipe';
 
 
 @NgModule({
@@ -101,7 +103,9 @@ import { FilterResourcesByGroupLabelPipe } from './swarm/pipe/filter-resources-b
     TimeCountDownPipe,
     ShowFailedTasksPipe,
     SwarmConfigComponent,
-    FilterResourcesByGroupLabelPipe
+    FilterResourcesByGroupLabelPipe,
+    PaginationPipe,
+    PaginationPagesPipe
   ],
   imports: [
     BrowserModule, FormsModule,
@@ -143,7 +147,7 @@ import { FilterResourcesByGroupLabelPipe } from './swarm/pipe/filter-resources-b
     PopoverModule,
     Ng2GoogleChartsModule
   ],
-  providers: [DatePipe, FilterAnywherePipe, SwarmIndexService],
+  providers: [DatePipe, FilterAnywherePipe, SwarmIndexService, ResourcesPipe],
   bootstrap: [AppComponent],
   entryComponents: [
     SwarmHelpComponent, SwarmDebugComponent, SwarmLogComponent

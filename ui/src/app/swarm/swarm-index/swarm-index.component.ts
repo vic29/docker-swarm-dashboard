@@ -4,6 +4,8 @@ import {MatPaginator, MatSort, MatTableDataSource} from '@angular/material';
 import { SwarmIndexService } from './../swarm-index.service';
 import { MatTabChangeEvent } from '@angular/material';
 
+import * as _ from 'lodash';
+
 @Component({
   selector: 'app-swarm-index',
   templateUrl: './swarm-index.component.html',
@@ -19,8 +21,8 @@ export class SwarmIndexComponent implements OnInit {
 
   ngOnInit() {
     this.swarmService.getDockerData().subscribe(message => {
-        this.dockerData = message;
-        console.log('NEW docker data:', this.dockerData);
+      this.dockerData = message;
+      console.log('NEW docker data:', this.dockerData);
     });
     this.swarmService.getTabData().subscribe(tabSrvData => {
       console.log('Tab server information changed!', tabSrvData);

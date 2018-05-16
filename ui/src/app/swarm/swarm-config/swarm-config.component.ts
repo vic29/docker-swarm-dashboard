@@ -53,6 +53,8 @@ export class SwarmConfigComponent implements OnInit {
 
     this.swarmService.getDockerResources().subscribe(resources => {
       if (!_.isEqual(this.dockerResources, resources)) {
+        console.log('New docker resources:', resources);
+
         this.dockerResources = resources;
 
         this.chartData.dataTable = [];

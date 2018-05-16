@@ -1,8 +1,14 @@
 #!/bin/bash
 
 rm -rf node_modules
-rm -rf ui/node_modules
+yarn install
 
-time docker build --pull -t szabob/swarm-dashboard:1.0 -t szabob/swarm-dashboard:latest .
-docker push szabob/swarm-dashboard:1.0
-docker push szabob/swarm-dashboard:latest
+cd ui
+rm -rf node_modules
+yarn install
+npm run build
+
+cd ..
+time docker build --pull -t szabobar/swarm-dashboard:1.1 -t szabobar/swarm-dashboard:latest .
+docker push szabobar/swarm-dashboard:1.1
+docker push szabobar/swarm-dashboard:latest

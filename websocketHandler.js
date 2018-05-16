@@ -1,6 +1,6 @@
 
 const srv = require('./server.js');
-const io = require('socket.io')(srv.getServer());
+const io = srv.getWebsocket();
 
 module.exports = {
 

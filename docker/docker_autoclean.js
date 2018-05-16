@@ -12,7 +12,7 @@ module.exports = {
             cleanInProgress = true;
 
             syntacticalCheckModule.mark(dockerData, groups);
-            if (dockerData.serviceGroups.filter(ecosystem => ecosystem.markedAsRemove).length === 0) {
+            if ( env.get('CHECK_ECOSYSTEM_OVERRIDE_IF_SYNTACTICALLY_BAD') || dockerData.serviceGroups.filter(ecosystem => ecosystem.markedAsRemove).length === 0) {
                 resourceOverloadModule.mark(dockerData, groups);
             }
 

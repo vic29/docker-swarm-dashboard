@@ -14,6 +14,8 @@ docker stack deploy -c docker-compose-good-cat2.yml test-good-cat2-4
 docker stack deploy -c docker-compose-good-cat2.yml test-good-cat2-5
 docker stack deploy -c docker-compose-good-cat2.yml test-good-cat2-6
 
+docker stack deploy -c docker-compose-good-cat3.yml test-good-cat3-1
+docker stack deploy -c docker-compose-good-cat3.yml test-good-cat3-2
 
 docker stack deploy -c docker-compose-higherGap.yml test-higherGap 
 docker stack deploy -c docker-compose-limitLowerThanReserved.yml test-limitLowerThanReserved 

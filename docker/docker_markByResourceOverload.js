@@ -32,15 +32,17 @@ function calculateGroupArea(fullData, groups) {
         groups.forEach(g => {
             g.workspace = {
                 resource: {
-                    usableTotalMemory: g.allocation.weight * weightMemoryUnit,
-                    usableTotalCPU: g.allocation.weight * weightCPUUnit,
+                    usableTotalMemory: g.serviceFilter ? g.allocation.weight * weightMemoryUnit : workspaceTotalMemory,
+                    usableTotalCPU: g.serviceFilter ? g.allocation.weight * weightCPUUnit : workspaceTotalCPU,
                     usedTotalMemory: 0,
                     usedTotalCPU: 0
                 }
             }
             calculateGroupResource(fullData.serviceGroups, g);
-            totalDeclaredResources.cpu += g.workspace.resource.usedTotalCPU;
-            totalDeclaredResources.memory += g.workspace.resource.usedTotalMemory;
+            if (g.serviceFilter) {
+                totalDeclaredResources.cpu += g.workspace.resource.usedTotalCPU;
+                totalDeclaredResources.memory += g.workspace.resource.usedTotalMemory;
+            }
         });
 
         markOverloadedEcosystems(fullData, groups, totalDeclaredResources, totalAvailableResources);
@@ -66,7 +68,7 @@ function getTotalAvailableResources(fullData) {
 
 function calculateGroupResource(dockerServiceGroups, oneGroup) {
     let inGroup = dockerServiceGroups
-        .filter(s => JSON.stringify(s).toLowerCase().indexOf((oneGroup.serviceFilter ? oneGroup.serviceFilter.toLowerCase() : '-!-NOT-MATCHING-FILTER-!-')) > -1);
+        .filter(s => JSON.stringify(s).toLowerCase().indexOf((oneGroup.serviceFilter ? oneGroup.serviceFilter.toLowerCase() : 'a')) > -1);
 
     inGroup.sort((a, b) => a.priority - b.priority);
 
@@ -96,7 +98,7 @@ function calculateGroupResource(dockerServiceGroups, oneGroup) {
         if (memoryGAP > 0 || cpuGAP > 0) {
             memoryGAP = memoryGAP - eco.workspace.resource.usedTotalMemory;
             cpuGAP = cpuGAP - eco.workspace.resource.usedTotalCPU;
-            eco.workspace.overloaded = idx + 1;
+            eco.workspace.overloaded = oneGroup.serviceFilter ? idx + 1 : 0;
         }
     });
 }

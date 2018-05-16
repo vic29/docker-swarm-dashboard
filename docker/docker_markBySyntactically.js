@@ -90,7 +90,7 @@ function markNotInAnyGroup(eco, groups) {
     const sourceStr = JSON.stringify(eco).toLowerCase();
     let inGroupNum = groups.filter(g => {
         if (g.serviceFilter) {
-            return sourceStr.indexOf(g.serviceFilter.toLowerCase()) > -1;
+            return sourceStr.indexOf( 'pool":"' + g.serviceFilter.toLowerCase()) > -1; // TODO fast hack
         } else {
             return false;
         }

@@ -16,17 +16,8 @@ RUN apk update \
 # Bundle FULL app source
 COPY . /opt/app
 
-# Install server dependencies
-RUN cd /opt/app && \
-    rm -rf /opt/app/node_modules && \
-    npm install
-
 # Build UI
-RUN cd /opt/app/ui && \
-    rm -rf /opt/app/ui/node_modules && \
-    npm install && \
-    npm run build && \
-    cp -rf /opt/app/ui/dist /opt/app/public && \
+RUN cp -rf /opt/app/ui/dist /opt/app/public && \
     rm -rf /opt/app/ui
 
 EXPOSE  8080

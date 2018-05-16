@@ -23,7 +23,7 @@ module.exports = {
                 }).filter(l => l.key.toLowerCase() === label.toLowerCase());
                 return labels.length > 0;
             }).map(s => s.Spec.Labels[label]);
-            const projectEmail = labelValues && labelValues.length > 0 ? parseInt(labelValues[0]) : '';
+            const projectEmail = labelValues && labelValues.length > 0 ? labelValues[0] : null;
             if (projectEmail) {
                 send(projectEmail, title, body);
             }

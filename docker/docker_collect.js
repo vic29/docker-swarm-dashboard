@@ -51,10 +51,14 @@ module.exports = function (finishedCallback) {
                                     docker.listServices(function (errService, serviceData) {
                                         if (!errService) {
                                             for (let service of serviceData) {
-
                                                 try {
                                                     // Extend service with tasks (containers)
-                                                    service['tasks'] = taskData.filter(task => task.ServiceID === service.ID);
+                                                    service['tasks'] = taskData.filter(task => {
+                                                        if ( env.get('CLEAN_SHUTDOWN_TASK_BEFORE_SEND') && task.DesiredState && task.DesiredState === 'shutdown' ) {
+                                                            return false;
+                                                        }
+                                                        return task.ServiceID === service.ID;
+                                                    });
 
                                                     const stackName = getArrayValue(service, ['Spec', 'TaskTemplate', 'ContainerSpec', 'Labels', 'com.docker.stack.namespace']);
                                                     if (stackName) {
@@ -70,6 +74,7 @@ module.exports = function (finishedCallback) {
                                                             markedMessage: ''
                                                         });
                                                     }
+
                                                 } catch (e) {
                                                     const msg = 'Invalid response from docker api reading the meta data: ' + e;
                                                     websocket.broadcast('server-error', msg);

@@ -5,9 +5,10 @@ const fs = require('fs');
 const express = require('express');
 const app = express();
 const server = require('http').createServer(app);
+const io = require('socket.io')(server);
 module.exports = {
-    getServer: function() {
-        return server;
+    getWebsocket: function() {
+        return io;
     }
 }
 const http = require('http');
@@ -57,7 +58,7 @@ require('./docker/docker_collect.js')(function (newData, lastCheckedDate) {
         autoClean.startClean(dataWithGerrit, projectGroups);
 
         websocket.broadcast('docker-resources', projectGroups);
-        projectGroups.forEach(g => g.workspace = null);
+        // projectGroups.forEach(g => g.workspace = null);
 
         if (!_.isEqual(lastData, dataWithGerrit)) {
             lastData = dataWithGerrit;

@@ -18,6 +18,9 @@ export class SwarmTableComponent implements OnInit {
   private showedFailedContainers = [];
   private expandedRowNames = [];
 
+  pageNum = 1;
+  pageSize = 10;
+
   constructor(public dialog: MatDialog) {}
 
   ngOnInit() {
