@@ -5,7 +5,7 @@ services:
     deploy:
       # Egyszer szükséges megadni ecosystem-enként a label-eket
       labels:
-        loxon.info: "Test ecosystem 1" # Ecosystem értelmes leírása
+        loxon.info: "Test <a href='https://google.com'>ecosystem</a> 1" # Ecosystem értelmes leírása
         loxon.pool: "mycat1" # Milyen csoportba fog tartozni, a felületen a csoportnál megadott pattern-re illeszkedjen
         loxon.cleanEmail: "PROJECT_EMAIL@loxon.eu" # Ha töröl a rendszer egy környezetet, akkor ide jelzi, hogy miért
         loxon.priority: 70 # 0 és 100 között. Ha a területen túllógnak az ecosystem-ek, akkor a legalacsonyabbakat törli
